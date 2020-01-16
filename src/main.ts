@@ -21,7 +21,10 @@ export function main(param: GameMainParameterObject): void {
 				// ここからゲーム内容を記述します
 
 				// スコア
-				g.game.vars.gameState = {};
+				g.game.vars.gameState = {
+					score: 0,
+					playThreshold: 0
+				};
 				g.game.vars.gameState.score = 0;
 
 				// テキスト表示
@@ -64,8 +67,8 @@ export function main(param: GameMainParameterObject): void {
 				scene.append(timeLimitLabel);
 
 				setInterval(() => {
-					timeLimitLabel.text = `残り時間 ${timeLimit}`;
 					timeLimit--;
+					timeLimitLabel.text = `残り時間 ${timeLimit}`;
 					timeLimitLabel.invalidate();
 				}, 1000);
 
@@ -80,6 +83,7 @@ export function main(param: GameMainParameterObject): void {
 				// プレイヤーの初期座標を、画面の中心に設定します
 				player.x = 100;
 				player.y = (g.game.height - player.height) / 2;
+
 				// player.update.add(() => {
 				// 	// 毎フレームでY座標を再計算し、プレイヤーの飛んでいる動きを表現します
 				// 	// ここではMath.sinを利用して、時間経過によって増加するg.game.ageと組み合わせて
@@ -92,7 +96,7 @@ export function main(param: GameMainParameterObject): void {
 				scene.pointMoveCapture.add((event) => {
 					const oldPos = player.y;
 					player.y += event.prevDelta.y;
-					if (player.y >= 280 || player.y <= 0) {
+					if (player.y >= g.game.height || player.y <= 0) {
 						player.y = oldPos;
 					}
 					player.modified();
@@ -117,10 +121,12 @@ export function main(param: GameMainParameterObject): void {
 							// 消す
 							block.destroy();
 							// 減点
-							g.game.vars.gameState.score -= 5;
-							label.text = `得点 ${g.game.vars.gameState.score}`;
-							// 再描画
-							label.invalidate();
+							if (g.game.vars.gameState.score - 5 >= 0) {
+								g.game.vars.gameState.score -= 5;
+								label.text = `得点 ${g.game.vars.gameState.score}`;
+								// 再描画
+								label.invalidate();
+							}
 							// 配列からも消す
 							const index = blockList.indexOf(block);
 							blockList.splice(index, 1);
@@ -175,7 +181,7 @@ export function main(param: GameMainParameterObject): void {
 						if (g.Collision.intersectAreas(block, player)) {
 							// 消す
 							block.destroy();
-							// 減点
+							// 加点
 							g.game.vars.gameState.score += 20;
 							label.text = `得点 ${g.game.vars.gameState.score}`;
 							// 再描画
@@ -235,7 +241,7 @@ export function main(param: GameMainParameterObject): void {
 
 	g.game.pushScene(titleScene);
 
-	// Title表示。引数に関数入れるとsetTimeoutがうごくよ。
+	// タイトル
 	function createTitleScene(): g.Scene {
 		const titleScene = new g.Scene({
 			game: g.game
@@ -256,7 +262,6 @@ export function main(param: GameMainParameterObject): void {
 			});
 			label.x = (g.game.width - label.width) / 2;
 			label.y = (g.game.height - label.height) / 2;
-
 			titleScene.append(label);
 		});
 		return titleScene;

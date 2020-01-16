@@ -42,8 +42,7 @@
 		"sandbox-runtime": "2",
 		"niconico": {
 			"supportedModes": [
-				"ranking",
-				"single"
+				"ranking"
 			]
 		},
 		"preferredSessionParameters": {
